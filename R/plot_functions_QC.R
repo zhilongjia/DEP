@@ -130,7 +130,7 @@ plot_normalization <- function(se, ...) {
   ggplot(df, aes(x = ID, y = val, fill = condition)) +
     geom_boxplot(notch = TRUE, na.rm = TRUE) +
     coord_flip() +
-    facet_wrap(~var, ncol = 1) +
+    facet_wrap(~var, ncol = 2) +
     labs(x = "", y = expression(log[2]~"Intensity")) +
     theme_DEP1()
 }
