@@ -47,7 +47,8 @@ plot_numbers <- function(se, plot = TRUE) {
     left_join(., data.frame(colData(se)), by = "ID")
   p <- ggplot(stat, aes(x = ID, y = sum, fill = condition)) +
     geom_col() +
-    geom_hline(yintercept = unique(stat$n)) +
+    # geom_hline(yintercept = unique(stat$n)) +
+      geom_hline(yintercept = median(stat$sum) ) +
     labs(title = "Proteins per sample", x = "",
          y = "Number of proteins") +
     theme_DEP2()
