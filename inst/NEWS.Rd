@@ -2,6 +2,16 @@
 \title{DEP News}
 \encoding{UTF-8}
 
+
+\section{Version 1.5.3}{\itemize{
+\item
+add pvalue filter and tune alpha=1 as default in the function test_diff() and get_results().
+\item
+plot in 2 cols in the plot_normalization() function.
+\item
+add median line in the plot_numbers() function.
+}}
+
 \section{Version 1.1.5}{\itemize{
 \item
 Enabled differential testing with missing values.
