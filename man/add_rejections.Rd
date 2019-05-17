@@ -4,18 +4,20 @@
 \alias{add_rejections}
 \title{Mark significant proteins}
 \usage{
-add_rejections(diff, alpha = 0.05, lfc = 1)
+add_rejections(diff, pval = 0.05, alpha = 1, lfc = 1)
 }
 \arguments{
 \item{diff}{SummarizedExperiment,
 Proteomics dataset on which differential enrichment analysis
 has been performed (output from \code{\link{test_diff}()}).}
 
+\item{pval}{default 0.05.}
+
 \item{alpha}{Numeric(1),
-Sets the threshold for the adjusted P value.}
+Sets the threshold for the adjusted P value. default 1.}
 
 \item{lfc}{Numeric(1),
-Sets the threshold for the log2 fold change.}
+Sets the threshold for the log2 fold change. default 1.}
 }
 \value{
 A SummarizedExperiment object

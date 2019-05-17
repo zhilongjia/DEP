@@ -34,8 +34,8 @@ test_that("test_diff returns an object with diff, p.val and p.adj columns", {
 })
 
 test_that("add_rejections throws error without valid input", {
-  expect_error(add_rejections("test_lm", 0.05, 1))
-  expect_error(add_rejections(test_lm, "0.05", 1))
+  expect_error(add_rejections("test_lm", 1, 0.05, 1))
+  expect_error(add_rejections(test_lm, 1, "0.05", 1))
   expect_error(add_rejections(test_lm, 0.05, "1"))
   expect_error(add_rejections(test_impute, 0.05, 1))
 
@@ -53,7 +53,7 @@ test_that("add_rejections returns a SummarizedExperiment object", {
 })
 
 test_that("add_rejections returns an object with significance columns", {
-  result <- SummarizedExperiment::rowData(add_rejections(test_lm, 0.05, 1))
+  result <- SummarizedExperiment::rowData(add_rejections(test_lm, 1, 0.05, 1))
   expect_equal(grep("^significant$", colnames(result)), 44)
   expect_equal(grep("_significant$", colnames(result)), 41:43)
   expect_equal(nrow(result[result$significant,]), 45)

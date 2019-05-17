@@ -1002,10 +1002,11 @@ test_diff <- function(se, type = c("control", "all", "manual"),
 #' @param diff SummarizedExperiment,
 #' Proteomics dataset on which differential enrichment analysis
 #' has been performed (output from \code{\link{test_diff}()}).
+#' @param pval default 0.05.
 #' @param alpha Numeric(1),
-#' Sets the threshold for the adjusted P value.
+#' Sets the threshold for the adjusted P value. default 1.
 #' @param lfc Numeric(1),
-#' Sets the threshold for the log2 fold change.
+#' Sets the threshold for the log2 fold change. default 1.
 #' @return A SummarizedExperiment object
 #' annotated with logical columns indicating significant proteins.
 #' @examples
@@ -1028,7 +1029,7 @@ test_diff <- function(se, type = c("control", "all", "manual"),
 #' diff <- test_diff(imputed, "control", "Ctrl")
 #' dep <- add_rejections(diff, alpha = 0.05, lfc = 1)
 #' @export
-add_rejections <- function(diff, alpha = 0.05, lfc = 1) {
+add_rejections <- function(diff, pval=0.05, alpha = 1, lfc = 1) {
   # Show error if inputs are not the required classes
   if(is.integer(alpha)) alpha <- as.numeric(alpha)
   if(is.integer(lfc)) lfc <- as.numeric(lfc)
@@ -1055,25 +1056,30 @@ add_rejections <- function(diff, alpha = 0.05, lfc = 1) {
   }
 
   # get all columns with adjusted p-values and log2 fold changes
+  cols_rawp <- grep("_p.val", colnames(row_data))
   cols_p <- grep("_p.adj", colnames(row_data))
   cols_diff <- grep("_diff", colnames(row_data))
 
   # Mark differential expressed proteins by
-  # applying alpha and log2FC parameters per protein
+  # applying cols_p, alpha and log2FC parameters per protein
   if(length(cols_p) == 1) {
     rowData(diff)$significant <-
-      row_data[, cols_p] <= alpha & abs(row_data[, cols_diff]) >= lfc
+        row_data[, cols_rawp] <= pval & row_data[, cols_p] <= alpha & abs(row_data[, cols_diff]) >= lfc
     rowData(diff)$contrast_significant <-
       rowData(diff, use.names = FALSE)$significant
     colnames(rowData(diff))[ncol(rowData(diff, use.names = FALSE))] <-
       gsub("p.adj", "significant", colnames(row_data)[cols_p])
   }
   if(length(cols_p) > 1) {
+    # add p-value filter
+    rawp_reject <- row_data[, cols_rawp] <= pval
+    rawp_reject[is.na(rawp_reject)] <- FALSE
+      
     p_reject <- row_data[, cols_p] <= alpha
     p_reject[is.na(p_reject)] <- FALSE
     diff_reject <- abs(row_data[, cols_diff]) >= lfc
     diff_reject[is.na(diff_reject)] <- FALSE
-    sign_df <- p_reject & diff_reject
+    sign_df <- (p_reject & diff_reject & rawp_reject)
     sign_df <- cbind(sign_df,
       significant = apply(sign_df, 1, function(x) any(x)))
     colnames(sign_df) <- gsub("_p.adj", "_significant", colnames(sign_df))
@@ -1169,12 +1175,12 @@ get_results <- function(dep) {
   # Select the adjusted p-values and significance columns
   pval <- as.data.frame(row_data) %>%
     column_to_rownames("name") %>%
-    select(ends_with("p.val"),
+    select(matches("p.val"),
       ends_with("p.adj"),
       ends_with("significant")) %>%
     rownames_to_column()
-  pval[, grep("p.adj", colnames(pval))] <-
-    pval[, grep("p.adj", colnames(pval))] %>%
+  pval[, grep("p.val.x|p.adj", colnames(pval))] <-
+    pval[, grep("p.val.x|p.adj", colnames(pval))] %>%
     signif(digits = 3)
 
   # Join into a results table
