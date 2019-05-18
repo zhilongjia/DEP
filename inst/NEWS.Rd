@@ -10,6 +10,8 @@ add pvalue filter and tune alpha=1 as default in the function test_diff() and ge
 plot in 2 cols in the plot_normalization() function.
 \item
 add median line in the plot_numbers() function.
+\item
+add cluster_columns parameter in the plot_missval() function.
 }}
 
 \section{Version 1.1.5}{\itemize{
